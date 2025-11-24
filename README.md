@@ -4,4 +4,4 @@ Ce dépôt git regroupe le code du Projet de Fin d'Étude (PFE) de Yuzhi Wang et
 
 L'objectif est de simuler de cartes de dose à l'aide de matrices numpy puis d'évaluer les différentes métriques connues de cartes de dose.
 
-Actuellement, toutes les fonctions sont regroupées dans le fichier PFE.py.
+Actuellement, toutes les fonctions sont regroupées dans le fichier PFE.ipynb.
