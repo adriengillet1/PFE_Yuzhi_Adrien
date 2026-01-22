@@ -80,7 +80,7 @@ def t_test_value(matrices_simulees_ref, matrice_simulees_bruitee):
             x = np.array(matrices_simulees_ref[i][j]).ravel()
             y = np.array(matrice_simulees_bruitee[i][j]).ravel()
             pval = ttest_ind(x, y).pvalue
-            
+
             if (pval < 0.05):
                 t_test_matrix[i][j] = 1
             else:
