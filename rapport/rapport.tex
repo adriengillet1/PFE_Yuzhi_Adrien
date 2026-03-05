@@ -1,0 +1,153 @@
+\documentclass[12pt]{article}
+
+\usepackage[A4paper]{geometry}
+\usepackage{wrapfig}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{caption} 
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage{csvsimple}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{blindtext}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.multipart}
+%\usepackage{amsmath,amssymb}
+%\renewcommand{\baselinestretch}{1.5} % Interlignes
+
+\geometry{a4paper, total={170mm,257mm}, left=20mm, right=20mm, top=25mm, bottom=25mm}
+
+\begin{document}
+\normalsize
+
+
+%Page de garde
+\begin{titlepage}
+\begin{center}
+
+\MakeUppercase{ \Large é\normalsize cole nationale de la statistique\\ et de l'analyse de l'information}\\[1.5cm]
+\includegraphics[width=0.5\textwidth]{ensai\_logo.png}\\[1.5cm] 
+
+\MakeUppercase{\Large 3\large rd year statistical project}\\[0.5cm]
+\vspace{1cm}
+
+\rule{\linewidth}{0.5mm} \\[0.5cm]
+{\Large\bfseries Evaluation of Classical Metrics and Optimal Transport for the Comparison of Dose Maps in Radiotherapy} \\[0.3cm]
+\rule{\linewidth}{0.5mm} \\
+
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{flushleft} \Large
+\hspace{2cm}
+\emph{Students:}\\\vspace{0.2cm} \large
+\hspace{2cm} Adrien \textsc{GILLET} \\
+\hspace{2cm} Yuzhi \textsc{WANG}\\
+\end{flushleft}
+
+\vspace{1cm}
+
+\begin{flushleft} \Large
+\hspace{10.5cm}
+\emph{Supervisor:} \\ \vspace{0.2cm} \large
+\hspace{10.5cm} Hong-Phuong \textsc{DANG} \\ \vspace{0.6cm}
+\end{flushleft}
+
+\centering
+\vspace{1cm}
+{\large Year 2025-2026}
+
+\end{titlepage}
+
+\section*{Acknowledgments}
+\newpage
+
+
+\section*{Abstract}
+\newpage
+
+
+% Table des matières
+\newpage
+\renewcommand{\contentsname}{Table of contents}
+\tableofcontents
+
+
+\section*{Glossary}
+\addcontentsline{toc}{section}{Glossary}
+\vspace{0.5cm}
+
+\begin{tabular}{|>{\centering\arraybackslash}p{5cm}|p{10cm}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Term}} & \multicolumn{1}{c|}{\textbf{Definition}}  \\ 
+\hline
+Dosymetry & In radiation therapy, dosimetry refers to the science and technology of quantitatively measuring and calculating the energy deposited by ionizing radiation in tissues or materials during the treatement. Its core objective is to accurately assess and control the radiation dose received by the patient, in order to ensure therapeutic effectiveness while minimizing damage to normal tissues. \\ 
+\hline
+Dose Map & A dose map is a visual representation that shows how radiation is distributed throughout a patient's body during treatment. It allows medical teams to verify that the tumor receives the right amount of radiation while the surrounding healthy tissues are spared as much as possible. \\ 
+\hline
+Monte Carlo (MC) simulations & Monte Carlo simulations are a computer-based method that uses a large number of random calculations to obtain numerical results. Applied to radiation therapy, this approach simulates millions of individual particle interactions to predict how radiation behaves when passing through the human body, providing a highly accurate estimate of the dose actually received by the patient. \\ 
+\hline
+OT (Optimal Transport) &  Optimal transport theory is a mathematical optimization framework that studies how to transform one probability distribution into another while minimizing the total transportation cost under a given cost function.\\ 
+\hline
+Wasserstein Distance &  The Wasserstein distance is a metric between probability distributions defined within the framework of optimal transport theory. It measures the distance between two distributions by the minimal cost of moving one into the other.\\ 
+\hline
+SSIM (Structural Similarity) & The SSIM is a metric used to assess the perceptual similarity between two images. Unlike simple pixel-by-pixel comparisons, it takes into account luminance, contrast, and structure, making it closer to how the human eye perceives image quality. \\ 
+\hline
+T-test & A t-test is a statistical test used to determine whether there is a significant difference between the means of two groups. It assesses whether the observed difference is likely due to chance or reflects a true underlying effect, based on the variability within the data and the sample size. \\ 
+\hline
+Moments & In statistics, moments are quantitative measures that describe the shape and characteristics of a probability distribution. The most commonly used are the mean (first moment), which describes the central tendency and the variance (second moment), which measures the spread of the data. \\ 
+\hline
+\end{tabular}
+
+\newpage
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+\vspace{2mm}
+\indent
+Cancer has been a major health problem worldwide. Radiation therapy is one of the main treatments for cancer, a method that uses radiation to destroy cancer cells by blocking their ability to multiply. In this project, we mainly focus on dosimetry, which is crucial in radiotherapy because it allows clinicians to precisely measure and control the radiation dose given to patients.
+\vspace{2mm}
+
+The comparison of dose maps is an essential step in dosimetry, as it ensures the accuracy of the simulated dose distributions. Each value on a dose map generally represents the average of a set of samples generated by Monte Carlo (MC) simulations. MC simulations track millions of radiation particles as they travel through the body. Each particle can be absorbed by tissues, scattered in different directions, or pass through without any interaction. These events are determined by physical probabilities. By adding up the energy deposited in each region of the body, dosimetry creates detailed dose maps that show the average radiation dose received in different areas. This information is essential for treatment planning because it helps doctors ensure that cancerous tissues receive enough radiation to destroy tumor cells while keeping exposure to surrounding healthy organs and tissues as low as possible. Accurate dosimetry is therefore key to finding the right balance between effective treatment and patient safety, which improves survival rates and reduces the risk of radiation side effects and other complications.
+\vspace{2mm}
+
+Various metrics exist for comparing dose maps. In this project, we will first examine classical methods such as Mean Squared Error (MSE), Mean Absolute Error (MAE), the gamma index, and the Structural Similarity Index (SSIM). We will then explore alternative approaches, including the Wasserstein distance.
+\newpage
+
+\section{Research question and context}
+In this part, we will study the theoretical support for our research problem and summarize some scientific papers on this subject. (Transport optimal, wasserstein distance, moment method approximation, dose map comparison?)
+\newpage
+
+\section{Dose map simulation}
+In this part, we will talk about the principle of the dose map, how it works, and why we can simulate a dose map using the Monte-Carlo method.
+\newpage
+
+\section{Dose map comparison metrics}
+In this section we will explain all the classical metrics that were used in the dose map comparison (MAE, MSE, T-TEST, SSIM, GAMMA INDEX) and also the wasserstein distance.
+\newpage
+
+\section{Result comparison}
+In this section we will talk about the results of different metrics on the original simulated dose map, to demonstrate that wasserstein distance gives the best result.
+\newpage
+
+\section{Result comparison with moments method approximation}
+In this part we will talk about moments method approximation, the try to figure out whether this approximation can represent the original data by observing the results of some metrics (MAE, wasserstein distance)
+\newpage
+
+\section{Conclusion}
+\newpage
+
+\section{Bibliography}
+\newpage
+
+\section{Annexe}
+\newpage
+
+\end{document}
