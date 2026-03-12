@@ -1,0 +1,990 @@
+\documentclass[12pt]{article}
+
+\usepackage[A4paper]{geometry}
+\usepackage{wrapfig}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{caption} 
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage{csvsimple}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{blindtext}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{parskip}
+\usepackage{cite}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.multipart}
+%\usepackage{amsmath,amssymb}
+%\renewcommand{\baselinestretch}{1.5} % Interlignes
+
+\geometry{a4paper, total={170mm,257mm}, left=20mm, right=20mm, top=25mm, bottom=25mm}
+
+\begin{document}
+\normalsize
+
+
+%Page de garde
+\begin{titlepage}
+\begin{center}
+
+\MakeUppercase{ \Large é\normalsize cole nationale de la statistique\\ et de l'analyse de l'information}\\[1.5cm]
+\includegraphics[width=0.5\textwidth]{ensai\_logo.png}\\[1.5cm] 
+
+\MakeUppercase{\Large 3\large rd year statistical project}\\[0.5cm]
+\vspace{1cm}
+
+\rule{\linewidth}{0.5mm} \\[0.5cm]
+{\Large\bfseries Evaluation of Classical Metrics and Optimal Transport for the Comparison of Dose Maps in Radiotherapy} \\[0.3cm]
+\rule{\linewidth}{0.5mm} \\
+
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{flushleft} \Large
+\hspace{2cm}
+\emph{Students:}\\\vspace{0.2cm} \large
+\hspace{2cm} Adrien \textsc{GILLET} \\
+\hspace{2cm} Yuzhi \textsc{WANG}\\
+\end{flushleft}
+
+\vspace{1cm}
+
+\begin{flushleft} \Large
+\hspace{10.5cm}
+\emph{Supervisor:} \\ \vspace{0.2cm} \large
+\hspace{10.5cm} Hong-Phuong \textsc{DANG} \\ \vspace{0.6cm}
+\end{flushleft}
+
+\centering
+\vspace{1cm}
+{\large Year 2025-2026}
+
+\end{titlepage}
+
+\section*{Acknowledgments}
+\newpage
+
+
+\section*{Abstract}
+\newpage
+
+
+% Table des matières
+\newpage
+\renewcommand{\contentsname}{Table of contents}
+\tableofcontents
+
+
+\section*{Glossary (temporary)}
+\addcontentsline{toc}{section}{Glossary}
+\vspace{0.5cm}
+
+\begin{tabular}{|>{\centering\arraybackslash}p{5cm}|p{10cm}|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Term}} & \multicolumn{1}{c|}{\textbf{Definition}}  \\ 
+\hline
+Dosymetry & In radiation therapy, dosimetry refers to the science and technology of quantitatively measuring and calculating the energy deposited by ionizing radiation in tissues or materials during the treatement. Its core objective is to accurately assess and control the radiation dose received by the patient, in order to ensure therapeutic effectiveness while minimizing damage to normal tissues. \\ 
+\hline
+Dose Map & A dose map is a visual representation that shows how radiation is distributed throughout a patient's body during treatment. It allows medical teams to verify that the tumor receives the right amount of radiation while the surrounding healthy tissues are spared as much as possible. \\ 
+\hline
+Monte Carlo (MC) simulations & Monte Carlo simulations are a computer-based method that uses a large number of random calculations to obtain numerical results. Applied to radiation therapy, this approach simulates millions of individual particle interactions to predict how radiation behaves when passing through the human body, providing a highly accurate estimate of the dose actually received by the patient. \\ 
+\hline
+OT (Optimal Transport) &  Optimal transport theory is a mathematical optimization framework that studies how to transform one probability distribution into another while minimizing the total transportation cost under a given cost function.\\ 
+\hline
+Wasserstein Distance &  The Wasserstein distance is a metric between probability distributions defined within the framework of optimal transport theory. It measures the distance between two distributions by the minimal cost of moving one into the other.\\ 
+\hline
+SSIM (Structural Similarity) & The SSIM is a metric used to assess the perceptual similarity between two images. Unlike simple pixel-by-pixel comparisons, it takes into account luminance, contrast, and structure, making it closer to how the human eye perceives image quality. \\ 
+\hline
+T-test & A t-test is a statistical test used to determine whether there is a significant difference between the means of two groups. It assesses whether the observed difference is likely due to chance or reflects a true underlying effect, based on the variability within the data and the sample size. \\ 
+\hline
+Moments & In statistics, moments are quantitative measures that describe the shape and characteristics of a probability distribution. The most commonly used are the mean (first moment), which describes the central tendency and the variance (second moment), which measures the spread of the data. \\ 
+\hline
+\end{tabular}
+
+\newpage
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+\vspace{2mm}
+\indent
+Cancer has been a major health problem worldwide. Radiation therapy is one of the main treatments for cancer, a method that uses radiation to destroy cancer cells by blocking their ability to multiply. In this project, we mainly focus on dosimetry, which is crucial in radiotherapy because it allows clinicians to precisely measure and control the radiation dose given to patients.
+\vspace{2mm}
+
+The comparison of dose maps is an essential step in dosimetry, as it ensures the accuracy of the simulated dose distributions. Each value on a dose map generally represents the average of a set of samples generated by Monte Carlo (MC) simulations. MC simulations track millions of radiation particles as they travel through the body. Each particle can be absorbed by tissues, scattered in different directions, or pass through without any interaction. These events are determined by physical probabilities. By adding up the energy deposited in each region of the body, dosimetry creates detailed dose maps that show the average radiation dose received in different areas. This information is essential for treatment planning because it helps doctors ensure that cancerous tissues receive enough radiation to destroy tumor cells while keeping exposure to surrounding healthy organs and tissues as low as possible. Accurate dosimetry is therefore key to finding the right balance between effective treatment and patient safety, which improves survival rates and reduces the risk of radiation side effects and other complications.
+\vspace{2mm}
+
+Various metrics exist for comparing dose maps. In this project, we will first examine classical methods such as Mean Squared Error (MSE), Mean Absolute Error (MAE), the gamma index, and the Structural Similarity Index (SSIM). We will then explore alternative approaches, including the Wasserstein distance.
+\newpage
+
+\section{Research question and context}
+
+\newpage
+
+\section{State of the art in dosimetry}
+
+The central question addressed in this project is whether the metrics currently used to compare
+dose maps in radiotherapy are sufficient to capture all clinically relevant discrepancies between
+two Monte Carlo (MC) simulations, and whether alternative approaches based on distributional
+comparison can provide additional diagnostic information.
+
+In a typical dosimetric workflow, two dose maps are compared in order to validate a new
+simulation algorithm, assess the impact of a change in acquisition parameters, or verify the
+consistency between a reference plan and a delivered treatment. Each pixel of a dose map
+stores the estimated mean dose derived from a set of MC particle histories. The comparison
+metrics are then applied to these mean dose maps, pixel by pixel or globally, to quantify the
+level of agreement between the two simulations.
+
+\subsection*{Mean Absolute Error and Mean Squared Error}
+
+The most elementary metrics are the Mean Absolute Error (MAE) and the Mean Squared
+Error (MSE), defined respectively as:
+\begin{equation}
+    \mathrm{MAE} = \frac{1}{N} \sum_{i,j} \left| d^1_{i,j} - d^2_{i,j} \right|
+\end{equation}
+\begin{equation}
+    \mathrm{MSE} = \frac{1}{N} \sum_{i,j} \left( d^1_{i,j} - d^2_{i,j} \right)^2
+\end{equation}
+where $d^1_{i,j}$ and $d^2_{i,j}$ denote the mean dose values at pixel $(i,j)$ for the reference
+and evaluated simulations respectively, and $N$ is the total number of pixels. These metrics
+are straightforward to compute and provide a global measure of the average discrepancy between
+two dose maps. However, they are purely pointwise: they compare mean dose values without
+accounting for the statistical uncertainty associated with each estimate. In particular, MSE
+penalises large deviations more heavily than small ones through its quadratic structure, while
+MAE treats all deviations equally. Neither metric provides spatial information about where the
+discrepancies are located, nor do they distinguish between a systematic bias and random noise.
+
+\subsection*{The Gamma Index}
+
+The gamma index, introduced by Low et al.\ (1998), is the reference clinical metric for
+dose map comparison. For each pixel of the evaluated map, it computes a combined criterion
+that accounts simultaneously for the local dose difference and the spatial displacement between
+corresponding dose values. Formally, for a reference dose distribution $D_r(\mathbf{r}_r)$ and
+an evaluated distribution $D_e(\mathbf{r}_e)$, the gamma value at a reference point $\mathbf{r}_r$
+is defined as:
+\begin{equation}
+    \gamma(\mathbf{r}_r) = \min_{\mathbf{r}_e} \left\{
+        \sqrt{
+            \frac{|\mathbf{r}_e - \mathbf{r}_r|^2}{\Delta d^2}
+            + \frac{|D_e(\mathbf{r}_e) - D_r(\mathbf{r}_r)|^2}{\Delta D^2}
+        }
+    \right\}
+\end{equation}
+where $\Delta d$ is the distance-to-agreement (DTA) tolerance and $\Delta D$ is the dose
+difference tolerance, typically set to $3\,\mathrm{mm}$ and $3\%$ respectively in clinical
+practice. A pixel passes the gamma criterion if $\gamma \leq 1$. The overall pass rate,
+i.e.\ the proportion of pixels satisfying this condition, summarises the agreement between
+the two maps.
+
+The gamma index is widely adopted because it incorporates clinical intuition: a small spatial
+shift in a region of high dose gradient may produce a large numerical dose difference but
+correspond to an acceptable geometric deviation. By jointly tolerating dose and distance
+discrepancies, the gamma index avoids penalising such situations. Its main limitation, however,
+is its binary nature: a pixel either passes or fails, with no distinction between a value of
+$\gamma = 0.1$ and $\gamma = 0.9$. Subtle but spatially structured biases that fall systematically
+just below the acceptance threshold may yield a high pass rate while still being clinically
+significant.
+
+\subsection*{Structural Similarity Index}
+
+The Structural Similarity Index (SSIM), originally developed for image quality assessment
+\cite{wang2004image}, measures the perceptual similarity between two images by decomposing
+the comparison into three components: luminance, contrast, and structural information. For
+two image patches $x$ and $y$ of the dose map, it is defined as:
+\begin{equation}
+    \mathrm{SSIM}(x, y) = \frac{(2\mu_x \mu_y + c_1)(2\sigma_{xy} + c_2)}
+    {(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}
+\end{equation}
+where $\mu_x$, $\mu_y$ are the local means, $\sigma_x^2$, $\sigma_y^2$ the local variances,
+$\sigma_{xy}$ the cross-covariance, and $c_1$, $c_2$ are small stabilising constants. The
+SSIM takes values in $[-1, 1]$, with $1$ indicating perfect structural agreement.
+
+Unlike MAE and MSE, SSIM captures spatial correlations and is sensitive to structural
+patterns in the dose distribution. It is therefore better suited to detecting coherent spatial
+discrepancies such as shifted dose gradients or altered dose fall-off regions. However, SSIM
+operates on the mean dose values and does not model the stochastic nature of MC simulations.
+It is also primarily designed for visual image comparison and does not have a direct clinical
+interpretation in dosimetric terms.
+
+\subsection*{Student's T-test}
+
+The Student t-test provides a statistical framework for assessing whether the mean dose
+values across two maps differ significantly. Given two samples of pixel-level dose differences,
+the test evaluates the null hypothesis that the mean difference is zero against the alternative
+that it is non-zero. The test statistic is:
+\begin{equation}
+    t = \frac{\bar{\delta}}{\hat{\sigma}_\delta / \sqrt{N}}
+\end{equation}
+where $\bar{\delta}$ is the sample mean of the pixel-wise differences $d^1_{i,j} - d^2_{i,j}$,
+$\hat{\sigma}_\delta$ is their sample standard deviation, and $N$ is the number of pixels. Under
+the null hypothesis, this statistic follows a Student distribution with $N-1$ degrees of freedom.
+
+The t-test provides a principled measure of global statistical significance. It can detect whether
+a systematic offset exists between two dose maps even when the pointwise differences are small.
+Its main limitation is that it provides no spatial resolution: a single p-value summarises the
+entire map, making it impossible to localise the source of any detected discrepancy. Moreover,
+it evaluates differences in mean dose only, and is insensitive to differences in higher-order
+distributional characteristics such as variance or skewness.
+
+\subsection*{Summary and Motivation}
+
+Table~\ref{tab:metrics_summary} summarises the key properties of the metrics reviewed above.
+All five metrics share a common limitation: they reduce the MC output at each pixel to a
+single scalar, typically the sample mean dose, and compare these scalar summaries. This
+design choice discards the distributional information carried by the full set of MC particle
+histories, in particular the local statistical uncertainty encoded in the sample variance and
+higher-order moments.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Metric} & \textbf{Spatial resolution} & \textbf{Distributional sensitivity} & \textbf{Clinical interpretation} \\
+\hline
+MAE   & pixel-wise   & mean only   & moderate \\
+MSE   & pixel-wise   & mean only   & moderate \\
+Gamma index & pixel-wise (binary) & mean only & high \\
+SSIM  & local patch  & mean + structure & low  \\
+t-test & global      & mean only   & moderate \\
+\hline
+\end{tabular}
+\caption{Summary of the classical metrics used in dosimetry and their main properties.}
+\label{tab:metrics_summary}
+\end{table}
+
+None of these metrics exploits the full empirical distribution of MC samples at each pixel.
+In particular, they are insensitive to differences in local sampling variability, which is a
+significant source of information in MC simulations where the number of particle histories
+per pixel varies substantially across the map. This observation motivates the investigation of
+metrics that compare full distributions rather than summary statistics, which is the subject of
+the following section.
+
+\newpage
+
+% ================================================================
+\section{Transportation Theory and Wasserstein Distance for Dosimetry}
+% ================================================================
+
+% ----------------------------------------------------------------
+\subsection{Limitations of Classical Metrics in Dosimetry}
+% ----------------------------------------------------------------
+
+As reviewed in the previous section, the metrics most commonly used for dose map
+comparison (MAE, MSE, the gamma index, SSIM, and the Student t-test) share an
+important limitation: they operate on scalar summary values at each pixel, typically
+the estimated mean dose, without taking into account the underlying statistical
+distribution of the Monte Carlo (MC) samples from which these estimates are derived.
+
+In a MC simulation, the dose value at each pixel is the empirical mean of a large
+collection of stochastic particle histories. The number of histories per pixel is not
+uniform across the simulation domain: pixels that are directly exposed to the radioactive ray
+accumulate far more particle interactions than peripheral or shielded regions, which
+results in strongly heterogeneous sample sizes across the map. A pixel with very few
+samples carries a much larger statistical uncertainty than one with thousands of
+samples, yet classical metrics treat both identically by assigning the same weight to
+their mean dose values. This insensitivity to local sampling variability is a known
+limitation of MAE and MSE in dosimetry.
+
+The gamma index partially addresses spatial tolerance by introducing acceptance
+criteria on both dose difference and distance-to-agreement, but it remains
+threshold-based and binary: a pixel either passes or fails. Subtle, spatially coherent
+biases that fall just below the acceptance threshold may go undetected even if they
+are clinically meaningful. SSIM captures structural patterns but does not model the
+stochastic nature of MC uncertainty. The Student t-test evaluates global distributional
+differences but provides no spatial resolution.
+
+In summary, none of these metrics uses the full distributional information available
+at each pixel. They reduce a collection of MC samples to a single number, discarding
+information about spread, asymmetry, and tail behaviour that may be relevant for
+clinical evaluation. This motivates the exploration of a different approach: one that
+compares the full empirical distributions of MC samples between two dose maps, rather
+than their pointwise summary statistics.
+
+% ----------------------------------------------------------------
+\subsection{Optimal Transport and the Wasserstein Distance}
+% ----------------------------------------------------------------
+
+\subsubsection{The Monge-Kantorovich Problem}
+
+Optimal transport (OT) theory provides a mathematical framework for comparing
+probability distributions by quantifying the minimum effort required to reshape one
+distribution into another. The standard formulation is the Monge-Kantorovich problem:
+given two probability measures $\mu$ and $\nu$ defined on measurable spaces $\mathcal{X}$
+and $\mathcal{Y}$, and a cost function $c : \mathcal{X} \times \mathcal{Y} \to \mathbb{R}^+$,
+the OT problem try to find a coupling measure $\pi$ on $\mathcal{X} \times \mathcal{Y}$ with
+marginals $\mu$ and $\nu$ that minimises the total transport cost:
+\begin{equation}
+    W_p^p(\mu, \nu) = \inf_{\pi \in \Pi(\mu,\nu)}
+    \int_{\mathcal{X} \times \mathcal{Y}} c(x,y)^p \, d\pi(x,y)
+    \label{eq:kantorovich}
+\end{equation}
+where $\Pi(\mu, \nu)$ denotes the set of all joint distributions on
+$\mathcal{X} \times \mathcal{Y}$ whose marginals are $\mu$ and $\nu$ respectively.
+The measure $\pi$ is called a transport plan: it encodes how mass at location $x$
+in the source distribution is moved to location $y$ in the target distribution.
+When $c(x,y) = |x - y|$, the $p$-th root of equation \eqref{eq:kantorovich} defines
+the $L^p$-Wasserstein distance $W_p(\mu, \nu)$.
+
+In one dimension, the Wasserstein distance has a closed-form expression using the
+quantile functions (inverse cumulative distribution functions) $F_\mu^{-1}$ and
+$F_\nu^{-1}$:
+\begin{equation}
+    W_p^p(\mu, \nu) = \int_0^1 \left| F_\mu^{-1}(t) - F_\nu^{-1}(t) \right|^p dt
+    \label{eq:wasserstein_1d}
+\end{equation}
+
+This formula is the theoretical basis for the pixelwise Wasserstein computation used
+in this work. For each pixel, the two empirical distributions of MC samples are
+compared through their empirical quantile functions, which produces a scalar distance
+that captures both the shift in location and the differences in spread between the
+two distributions.
+
+\subsubsection{Geometric Interpretation}
+
+The Wasserstein distance can be understood as the minimum amount of work needed to
+transport the mass of one probability distribution to match another, where work is
+defined as mass multiplied by displacement. This interpretation (sometimes called the
+earth mover's distance) makes $W_p$ sensitive to the geometry of
+the support of the distributions and not just to pointwise differences in probability
+mass.
+
+This geometric sensitivity has two useful consequences in the dosimetric setting.
+First, $W_p$ naturally accounts for the spread of the sample distribution at each
+pixel: a pixel with high MC variance will have a broader distribution, and the
+Wasserstein distance between two such distributions will reflect both any shift in
+mean dose and any difference in dispersion. This is precisely the information that
+classical metrics discard. Second, $W_p$ is a true metric on the space of probability
+measures, satisfying symmetry, non-negativity, and the triangle inequality, which
+makes it a theoretically well-grounded comparison criterion.
+
+% ----------------------------------------------------------------
+\subsection{Application to Dose Map Comparison}
+% ----------------------------------------------------------------
+
+\subsubsection{Pixelwise Wasserstein Mapping}
+
+In the framework developed in this project, the Wasserstein distance is computed
+independently at each pixel $(i, j)$ of the dose map. Let
+$S^1_{i,j} = \{x_1, \ldots, x_n\}$ and $S^2_{i,j} = \{y_1, \ldots, y_m\}$ denote
+the sets of MC samples at pixel $(i,j)$ for the reference simulation and the
+simulation under evaluation, respectively. The empirical distributions $\mu_{i,j}$
+and $\nu_{i,j}$ are defined as the uniform discrete measures over these sample sets:
+\begin{equation}
+    \mu_{i,j} = \frac{1}{n} \sum_{k=1}^{n} \delta_{x_k}, \qquad
+    \nu_{i,j} = \frac{1}{m} \sum_{k=1}^{m} \delta_{y_k}
+\end{equation}
+where $\delta_x$ denotes the Dirac mass at $x$. The pixelwise Wasserstein map is
+then defined as:
+\begin{equation}
+    W_{\text{map}}(i,j) = W_1\!\left(\mu_{i,j},\, \nu_{i,j}\right)
+\end{equation}
+
+This produces a two-dimensional map in which each pixel value encodes the
+distributional discrepancy between the two simulations at that location. Pixels where
+the two simulations agree will exhibit low Wasserstein values, while pixels affected
+by systematic bias or heterogeneous sampling will stand out with higher values.
+
+\subsubsection{Sensitivity to Sampling Heterogeneity and Bias}
+
+A key motivation for using the Wasserstein distance in this context is its sensitivity
+to two distinct sources of discrepancy between dose maps: additive bias and sampling
+variability. Classical metrics such as MAE and MSE mainly detect shifts in mean dose,
+while remaining insensitive to differences in the width or shape of the sample
+distribution. The Wasserstein distance penalises both.
+
+In the simulated dose maps used in this study, a controlled additive bias is
+introduced in a specific spatial region (columns 30 to 35 of the map), while the
+rest of the map is generated from identical underlying distributions but with
+heterogeneous sample sizes. This setup mimics the spatial non-uniformity of real MC
+simulations. The experiments show that the Wasserstein map successfully highlights
+both the biased region and the zones with strongly differing sample sizes, while MAE
+and MSE only detect the biased zone and remain blind to sampling heterogeneity.
+
+This sensitivity to sampling variability is particularly valuable in clinical
+dosimetry. In regions outside the primary radioactive ray or deep in tissue, the number of
+particle histories is low and the associated uncertainty is high. The Wasserstein
+distance provides a single criterion that integrates both dose accuracy and
+statistical reliability, which makes it more informative than classical metrics for
+evaluating MC simulations.
+
+% ----------------------------------------------------------------
+\subsection{Computational Limitations and Motivation for Moment-Based Approximation}
+% ----------------------------------------------------------------
+
+Despite its advantages, the direct computation of the Wasserstein distance from raw
+MC samples faces a fundamental scalability problem. In realistic clinical MC
+simulations, each pixel accumulates a number of particle histories that can range
+from a few hundred in low-fluence regions to several millions in high-fluence zones.
+Storing the complete sample set for every pixel of a two-dimensional dose map is
+computationally intractable. A dose grid of $512 \times 512$ pixels with $10^6$
+samples per pixel would require storing on the order of $2.6 \times 10^{11}$
+floating-point values, which far exceeds the memory capacity of standard computing
+systems.
+
+In practice, MC simulation codes do not store individual particle histories. What is
+retained are summary statistics of the deposited dose per pixel, typically the sample
+mean and the sample variance, together with the number of contributing histories.
+This is the standard output format of production MC codes such as EGSnrc, MCNP, and
+Geant4. As a result, the raw sample distributions that would be needed for an exact
+Wasserstein computation are never available in a real dosimetric workflow.
+
+This observation raises a central question for this project: is it possible to
+approximate the Wasserstein distance between two pixel distributions using only
+compressed representations of those distributions, specifically their statistical
+moments? If the answer is yes, then the distributional sensitivity of the Wasserstein
+metric could be used in clinical dosimetry without requiring access to the full
+sample sets. The following section addresses this question by drawing on recent
+theoretical results from Mula and Nouy (2024) \cite{mula2024}.
+
+
+% ================================================================
+\section{Approximation of the Wasserstein Distance with Moments}
+% ================================================================
+
+% ----------------------------------------------------------------
+\subsection{Statistical Moments as Compact Distributional Descriptors}
+% ----------------------------------------------------------------
+
+The moments of a probability measure $\mu$ on $\mathbb{R}$ are defined, for integer
+order $k \geq 0$, as:
+\begin{equation}
+    m_k(\mu) = \int x^k \, d\mu(x) = \mathbb{E}[X^k]
+\end{equation}
+
+The sequence of all moments $(m_k)_{k \geq 0}$ encodes the full distribution under
+mild regularity conditions. More precisely, if the moment sequence determines $\mu$
+uniquely (a property known as moment determinacy, which holds when $\mu$ has compact
+support), then knowledge of all moments is equivalent to knowledge of the distribution
+itself.
+
+From a practical point of view, moments provide an attractive compressed
+representation of a distribution: instead of storing thousands or millions of samples,
+one retains a finite vector of scalar statistics. The first two moments, the mean
+$m_1 = \mathbb{E}[X]$ and the variance $\sigma^2 = \mathbb{E}[X^2] - m_1^2$, are
+already stored by standard MC simulation codes. Higher-order moments encode more
+refined information about the shape of the distribution: skewness (order 3),
+kurtosis (order 4), and beyond.
+
+The central question is whether a finite truncation of the moment sequence provides
+a useful approximation of the Wasserstein distance. The theoretical framework of
+Mula and Nouy (2024) provides a rigorous affirmative answer under well-defined
+conditions, which are described in the following subsection.
+
+% ----------------------------------------------------------------
+\subsection{Theoretical Framework: the Moment-SoS Approach}
+% ----------------------------------------------------------------
+
+\subsubsection{Reformulation of Optimal Transport as a Moment Problem}
+
+Mula and Nouy (2024) establish that, when the cost function $c$ is a polynomial and
+the supports $\mathcal{X}_1$ and $\mathcal{X}_2$ of the two measures are compact
+semi-algebraic sets (sets defined by finitely many polynomial inequalities), the OT
+problem is exactly equivalent to a generalised moment problem. The key observation
+is that for a polynomial cost $c(x,y) = \sum_\alpha c_\alpha x^\alpha$, the transport
+cost functional is linear in the moments of the transport plan $\pi$:
+\begin{equation}
+    \int c(x,y) \, d\pi(x,y) = \sum_\alpha c_\alpha \, m_\alpha(\pi)
+\end{equation}
+
+The marginal constraints ($\pi$ must have $\mu$ and $\nu$ as marginals) also
+translate directly into linear constraints on the moments of $\pi$. The original
+infinite-dimensional optimisation problem over transport plans therefore reduces to
+an optimisation over the moment sequence $y = (y_\alpha)$ of the transport plan,
+subject to linear moment constraints and the requirement that $y$ corresponds to a
+valid measure. This requirement is called the moment sequence condition,
+$y \in \mathrm{MS}(\mathcal{X}_1 \times \mathcal{X}_2)$.
+
+Theorem 3.1 of Mula and Nouy formalises this equivalence: under compactness of the
+supports, an optimal transport plan $\pi^*$ is exactly the measure whose moment
+sequence $y^*$ solves the moment problem, and conversely. This equivalence is the
+theoretical foundation that justifies working with moments rather than with the
+measures themselves.
+
+\subsubsection{The Sums-of-Squares Hierarchy and Finite Truncation}
+
+The moment sequence $y$ is infinite, so the moment problem cannot be solved directly.
+The computational strategy of Mula and Nouy consists in considering a hierarchy of
+finite truncations: for a relaxation order $r$, only moments up to order $2r$ are
+retained, and the moment sequence condition is replaced by a finite set of
+positive semidefinite (PSD) matrix constraints on localised moment matrices.
+
+More precisely, if $\mathcal{X}$ is a compact semi-algebraic set defined by
+polynomial inequalities $g_j(x) \geq 0$, then by the Putinar Positivstellensatz,
+the moment sequence condition is equivalent to requiring that the localised moment
+matrices $M_r(g_j y)$ are positive semidefinite for all $j$ and all orders $r$:
+\begin{equation}
+    M_r(g_j \, y) \succeq 0, \quad \forall j, \quad \forall r \in \mathbb{N}
+\end{equation}
+
+For a fixed truncation order $r$, the relaxed problem involves only finitely many
+moment variables and finitely many PSD constraints. This makes it a semidefinite
+programme (SDP) that can be solved with standard numerical solvers. This yields a
+hierarchy of approximations $\rho_r$ of the true Wasserstein distance $\rho$,
+indexed by the relaxation order $r = r^*, r^*+1, r^*+2, \ldots$
+
+\subsubsection{Convergence Guarantee}
+
+The central theoretical result of Mula and Nouy is Theorem 6.1, which establishes
+the convergence of this hierarchy. The theorem states the following:
+\begin{enumerate}
+    \item The sequence $(\rho_r)_{r \geq r^*}$ is non-decreasing and satisfies
+          $\rho_r \leq \rho$ for all $r$.
+    \item $\rho_r \to \rho$ as $r \to \infty$.
+    \item From any sequence of solutions $y^r$ of the relaxed problems, one can
+          extract a subsequence whose components $(y^r_\alpha)$ converge to the
+          components of a moment sequence $y^*$ that solves the original moment
+          problem and whose representing measure is an optimal transport plan.
+\end{enumerate}
+
+The proof relies on a compactness argument: the PSD constraints on the localised
+moment matrices imply uniform bounds on all moment variables (Lemma 6.2 in the
+paper), making the feasible set of the relaxed problem compact in finite dimension.
+By the Banach-Alaoglu theorem, any sequence of solutions then admits a convergent
+subsequence, and its limit satisfies all the constraints of the original problem.
+
+From a practical standpoint, Mula and Nouy report that even the first-order
+relaxation ($r = 1$) produces very accurate approximations of the Wasserstein
+distance in their numerical experiments: relative errors of the order of $10^{-12}$
+are observed for the $W_1$ and $W_2$ distances between translated image distributions.
+This suggests that the hierarchy converges rapidly in practice, even though the
+computational cost grows with $r$.
+
+% ----------------------------------------------------------------
+\subsection{Implications for the Dosimetric Setting}
+% ----------------------------------------------------------------
+
+\subsubsection{What the Theory Justifies}
+
+The theoretical framework of Mula and Nouy justifies, under well-defined conditions,
+the use of moments as a compressed representation from which the Wasserstein distance
+can be recovered with arbitrary precision. Applied to the dosimetric context, this
+means that if one can compute and store a sufficient number of moments of the MC
+sample distribution at each pixel, rather than the samples themselves, one retains
+in principle all the information needed to compute the Wasserstein distance between
+two dose maps.
+
+The conditions required by the theory are compatible with the dosimetric setting.
+The support of the dose distribution at each pixel is bounded, since doses are
+non-negative and bounded by physical energy conservation arguments. This makes it
+a compact semi-algebraic set. The quadratic cost $c(x,y) = (x-y)^2$ corresponding
+to the $W_2$ distance is a polynomial, so Theorem 3.1 of Mula and Nouy applies
+directly. For the $W_1$ distance with cost $c(x,y) = |x-y|$, the piecewise
+polynomial extension of Theorem 3.6 covers this case.
+
+\subsubsection{Practical Considerations and Limitations}
+
+While the theoretical guarantees are strong, applying the moment-SoS framework to a
+practical pixelwise dosimetric computation raises several challenges that are
+investigated in this project.
+
+A first challenge is the choice of moment type. The raw moments $\mathbb{E}[X^k]$
+of a distribution supported on $[0,1]$ decay rapidly with order $k$, becoming
+numerically indistinguishable from zero beyond order 5 to 6 for typical dosimetric
+distributions. This means that a naive implementation using raw moments will lose
+discriminative power at high orders, regardless of how many moments are computed.
+Centred and standardised moments,
+\begin{equation}
+    \tilde{m}_k = \mathbb{E}\!\left[\left(\frac{X - \mu}{\sigma}\right)^k\right]
+\end{equation}
+avoid this problem by removing the influence of location and scale before computing
+higher-order statistics, and are therefore better suited for the comparison task.
+
+A second consideration concerns the scope of the theory. The Wasserstein distance
+in the Mula and Nouy framework is computed between two global measures over the full
+domain. The pixelwise approach used in this project is a practical simplification
+where the comparison is done independently at each pixel. This does not directly
+correspond to the theoretical setting of the paper. However, the theoretical insight
+that a finite number of moments can recover the Wasserstein distance remains the
+justification for using moment-based features at the pixel level.
+
+A third consideration is the role of the sample size. The number of MC samples per
+pixel, while not a classical moment, carries important information about the
+reliability of the moment estimates. A mean dose estimated from 100 samples is far
+less reliable than one estimated from 10\,000 samples. In this project, the sample
+size $n$ is therefore included as an additional feature alongside the statistical
+moments. It serves as a proxy for the confidence associated with the distributional
+estimate at each pixel, which is directly relevant to the sensitivity analysis
+described in the following section.
+
+% ----------------------------------------------------------------
+\subsection{Summary}
+% ----------------------------------------------------------------
+
+The theoretical results of Mula and Nouy establish that the Wasserstein distance
+between two distributions is, in principle, fully recoverable from their moment
+sequences, with a convergence guarantee as the number of retained moments increases.
+This provides the mathematical justification for the moment-based approximation
+strategy explored in this project.
+
+The practical implementation works as follows. For each pixel of the dose map, a
+vector of statistical descriptors is computed from the available MC output. This
+vector includes the sample size, the sample mean, and a set of standardised
+higher-order moments. The Wasserstein distance between two dose maps is then
+approximated by comparing these descriptor vectors across corresponding pixels,
+without requiring access to the raw sample distributions. The following section
+describes the experimental setup and the numerical results obtained with this
+approach.
+
+\newpage
+
+% ================================================================
+\section{Experiments and Results}
+% ================================================================
+
+This section presents the numerical experiments carried out to evaluate the
+different metrics described in the previous sections. All experiments are based
+on simulated two-dimensional dose maps, where each pixel contains a list of MC
+samples drawn from a known distribution. This controlled setting allows the
+ground truth to be known at all times, which makes it possible to assess the
+ability of each metric to detect a region of interest.
+
+% ----------------------------------------------------------------
+\subsection{Experimental Setup and Simulated Dose Maps}
+% ----------------------------------------------------------------
+
+The simulated dose maps are generated as follows. Two $64 \times 64$ dose maps
+are created, where each pixel $(i,j)$ contains a set of MC samples drawn from a
+normal distribution $\mathcal{N}(\mu_{i,j}, \sigma_{i,j})$. The parameters
+$\mu_{i,j}$ and $\sigma_{i,j}$ are drawn once and shared between the two maps,
+so that the two maps come from the same underlying distribution at every pixel.
+The only difference between the two maps is the number of samples per pixel,
+which is deliberately made heterogeneous: the map is divided into concentric
+regions with increasing sample counts from the border to the centre, reaching up
+to 10,000 samples per pixel in the central zone. This mimics the non-uniform
+sampling that is typical of real MC simulations, where central high-fluence
+regions accumulate more particle histories than peripheral regions.
+
+In addition, a controlled additive bias is introduced in a specific region of the
+second map: columns 30 to 35 receive a fixed offset $b$ added to all their
+samples before renormalisation. Two bias levels are considered: a strong bias
+($b = 0.5$) that produces a visible difference in the mean dose maps, and a weak
+bias ($b = 0.05$) that is not directly visible when comparing the two mean dose
+maps. All samples are normalised to $[0,1]$ after generation.
+
+Figure~\ref{fig:dose_maps_strong} shows the two mean dose maps and their
+pixelwise absolute difference for the strong bias case. The biased region
+(columns 30 to 35) is clearly visible in the difference map. Figure~\ref{fig:dose_maps_weak}
+shows the same visualisation for the weak bias case, where the biased region is
+no longer visible to the naked eye in the difference map. All subsequent
+experiments use the weak bias setting, which is the more challenging and
+clinically relevant scenario.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/dose_maps_strong.png}
+    \caption{Mean dose maps for the reference simulation (left) and the biased
+    simulation (right), and their absolute pixelwise difference (centre), for a
+    strong bias $b = 0.5$. The biased region is clearly visible.}
+    \label{fig:dose_maps_strong}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/dose_maps_weak.png}
+    \caption{Mean dose maps for the reference simulation (left) and the biased
+    simulation (right), and their absolute pixelwise difference (centre), for a
+    weak bias $b = 0.05$. The biased region is no longer visible in the
+    difference map.}
+    \label{fig:dose_maps_weak}
+\end{figure}
+
+% ----------------------------------------------------------------
+\subsection{Results of Classical Metrics}
+% ----------------------------------------------------------------
+
+The classical metrics (MAE, MSE, SSIM, gamma index, and t-test) are first applied
+to the weak bias setting. For each metric, the result is displayed as a
+two-dimensional map where each pixel value reflects the local discrepancy between
+the two simulations as measured by the corresponding criterion.
+
+Figure~\ref{fig:classical_metrics} shows the resulting maps. The MAE and MSE maps
+produce nearly uniform values across the entire image, with no visible structure
+corresponding to the biased region or to the zones with heterogeneous sample
+counts. This is expected: both metrics only compare the mean dose values at each
+pixel, and the weak bias is small enough to be masked by the natural variability
+between the two sample sets. The SSIM map shows some spatial structure related to
+the local texture of the dose distribution, but it does not isolate the biased
+columns in a consistent way. The gamma index and the t-test show similar
+behaviour.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/classical_metrics.png}
+    \caption{Pixelwise maps produced by the classical metrics (MAE, MSE, SSIM,
+    gamma index, t-test) for the weak bias setting. None of the metrics clearly
+    identifies the biased region (columns 30 to 35) or the zones with differing
+    sample counts.}
+    \label{fig:classical_metrics}
+\end{figure}
+
+These results confirm the limitation discussed in Section 3: metrics that rely
+only on mean dose values are not sensitive enough to detect weak biases or
+sampling heterogeneity. They provide a useful baseline but are insufficient for
+a fine-grained evaluation of MC simulations.
+
+% ----------------------------------------------------------------
+\subsection{Wasserstein Distance Computed from Raw Samples}
+% ----------------------------------------------------------------
+
+The Wasserstein distance $W_1$ is then computed at each pixel using the full sets
+of MC samples, following the pixelwise approach described in Section 3.3. The
+computation uses the empirical quantile formula given in equation
+\eqref{eq:wasserstein_1d}, applied to the sorted sample sets of each pixel.
+
+Figure~\ref{fig:wasserstein_raw} shows the resulting Wasserstein map. Two
+distinct structures are clearly visible. First, the biased region (columns 30 to
+35) stands out with elevated Wasserstein values, confirming that the metric is
+sensitive to the additive offset even when it is too small to be detected by MAE
+or MSE. Second, the outer border of the map, where the sample count is lowest
+(around 100 samples per pixel), also shows higher values. This is a direct
+consequence of the sensitivity of the Wasserstein distance to sampling
+variability: pixels with few samples produce noisier empirical distributions, and
+the Wasserstein distance between two noisy distributions is naturally higher than
+between two well-sampled ones.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.5\textwidth]{figures/wasserstein_raw.png}
+    \caption{Pixelwise Wasserstein map computed from the full sets of MC samples.
+    The biased region (columns 30 to 35) and the low-sampling border are both
+    clearly identified.}
+    \label{fig:wasserstein_raw}
+\end{figure}
+
+This result demonstrates that the Wasserstein distance computed from raw samples
+is a powerful tool for dose map comparison. However, as discussed in Section 3.4,
+this approach is not feasible in practice: real MC simulation codes do not store
+individual particle histories, and the storage requirements would be entirely
+prohibitive for clinical dose grids. The result in Figure~\ref{fig:wasserstein_raw}
+therefore serves as a reference target, and the goal of the following experiments
+is to find a compressed representation of the sample distributions that can
+produce a similar map without requiring access to the raw samples.
+
+% ----------------------------------------------------------------
+\subsection{Wasserstein Distance Computed from Raw Moments}
+% ----------------------------------------------------------------
+
+The first approximation strategy consists in computing the Wasserstein distance
+at each pixel using the vector of the first 100 raw moments of the sample
+distribution, rather than the samples themselves. For a pixel with sample set
+$\{x_1, \ldots, x_n\}$, the $k$-th raw moment is defined as:
+\begin{equation}
+    m_k = \frac{1}{n} \sum_{i=1}^{n} x_i^k, \quad k = 1, \ldots, 100
+\end{equation}
+
+The Wasserstein distance is then computed between the two moment vectors at each
+pixel, using the same quantile-based formula as before but applied to the 100
+moment values instead of the raw samples.
+
+Figure~\ref{fig:wasserstein_moments} shows the result. The map is nearly uniform
+and shows no trace of the biased region or the sampling heterogeneity, in strong
+contrast with the reference map of Figure~\ref{fig:wasserstein_raw}. This negative
+result has a clear explanation: the raw moments $\mathbb{E}[X^k]$ of a
+distribution supported on $[0,1]$ decay very rapidly with $k$. For a distribution
+with mean around 0.5, one has $\mathbb{E}[X^k] \approx 0.5^k$, which reaches the
+order of $10^{-30}$ for $k = 100$. In practice, only the first five or six moments
+carry meaningful numerical information, and these low-order moments are dominated
+by the mean of the distribution. The Wasserstein distance between two moment
+vectors is therefore essentially a comparison of mean values, which brings us back
+to the same limitation as MAE.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.5\textwidth]{figures/wasserstein_moments.png}
+    \caption{Pixelwise map produced by the Wasserstein distance computed from
+    the first 100 raw moments. The biased region and the sampling heterogeneity
+    are not detected.}
+    \label{fig:wasserstein_moments}
+\end{figure}
+
+Additionally, the Wasserstein distance formula relies on sorting the input values
+before computing the quantile functions. Sorting a vector of moments destroys its
+structure: the moment of order 1 (the mean) and the moment of order 50 are not
+interchangeable quantities, and treating them as unordered samples has no
+theoretical justification. Both the numerical decay problem and the sorting problem
+must be addressed to make moment-based approximation work in practice.
+
+% ----------------------------------------------------------------
+\subsection{MAE of Selected Moment Combinations}
+% ----------------------------------------------------------------
+
+To address the limitations identified above, a different strategy is explored. 
+Instead of applying the Wasserstein formula directly to the moment vector, the 
+comparison between two pixels is reduced to a single scalar by averaging a 
+selected subset of moments, and the MAE is then computed between these averaged 
+values across the two maps. Formally, for a selected set of moment indices 
+$\mathcal{K} = \{k_1, k_2, \ldots, k_p\}$, the representative value at pixel 
+$(i,j)$ is defined as:
+\begin{equation}
+    \bar{m}_{i,j}(\mathcal{K}) = \frac{1}{|\mathcal{K}|} \sum_{k \in \mathcal{K}} m_k^{(i,j)}
+\end{equation}
+and the comparison map is obtained by computing the pixelwise absolute difference:
+\begin{equation}
+    D(i,j) = \left| \bar{m}_{i,j}^{(1)}(\mathcal{K}) - \bar{m}_{i,j}^{(2)}(\mathcal{K}) \right|
+\end{equation}
+
+Two choices of $\mathcal{K}$ are considered. The first is a set of evenly spaced
+indices (every tenth moment: $\mathcal{K} = \{0, 10, 20, \ldots, 90\}$), which
+spreads the selection across the full range of available moments. The second is a
+set of six randomly chosen indices always including the first moment (index 0),
+which represents a minimal and computationally cheap descriptor.
+
+Figure~\ref{fig:mae_moments} shows the resulting maps for both selections. The
+maps show partial recovery of the structure seen in the reference Wasserstein map,
+with the biased region becoming visible for certain moment selections. However, the
+quality of the result depends strongly on the specific indices chosen, and no
+single selection consistently matches the reference across different random seeds.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=\textwidth]{figures/mae_moments.png}
+    \caption{Comparison maps produced by the MAE of averaged moment subsets, for
+    evenly spaced indices (left) and six randomly chosen indices (right). The
+    biased region is partially visible depending on the selection.}
+    \label{fig:mae_moments}
+\end{figure}
+
+\subsubsection*{Why Dispersed Moment Selections Perform Better}
+
+The observation that evenly spaced or randomly dispersed moment selections tend
+to outperform selections concentrated at low orders can be understood as follows.
+The raw moments of a distribution on $[0,1]$ form a strictly decreasing sequence:
+$m_0 = 1 \geq m_1 \geq m_2 \geq \cdots$, where the decay rate encodes information
+about the shape of the distribution. Two distributions with the same mean but
+different variances will have very similar values of $m_1$ but increasingly
+different values of $m_k$ for $k \geq 2$, with the difference growing before
+eventually decaying to zero at high orders.
+
+When the selected moments are concentrated at low orders, the averaged value
+$\bar{m}(\mathcal{K})$ is dominated by $m_0$ and $m_1$, which essentially recovers
+the mean dose and loses all shape information. When the selected moments are spread
+across a wider range of orders, the average captures contributions from multiple
+levels of the distributional shape. Moments at intermediate orders (around 5 to 20
+for distributions on $[0,1]$) are particularly informative, as they are large
+enough to avoid numerical underflow and small enough to carry shape information
+beyond the mean. A dispersed selection therefore acts as a crude but more robust
+summary of the full moment sequence.
+
+It should be noted, however, that this approach is a heuristic. The choice of
+moment indices is not optimised in any principled way, and the result depends on
+the specific selection used. A more systematic approach is needed to obtain
+reliable and reproducible results.
+
+% ----------------------------------------------------------------
+\subsection{Wasserstein Distance of the Moment-of-Moments}
+% ----------------------------------------------------------------
+
+The most successful approximation strategy explored in this project is the
+moment-of-moments approach. The idea is to apply the moment computation a second
+time: instead of using the raw sample set $\{x_1, \ldots, x_n\}$ directly, the
+first 100 raw moments of this set are computed to produce a vector
+$\mathbf{m} = (m_1, m_2, \ldots, m_{100})$. This vector is then treated as a new
+set of 100 numerical values, and its own first 100 moments are computed. The
+Wasserstein distance is finally applied to these second-level moment vectors at
+each pixel.
+
+Figure~\ref{fig:wasserstein_mom_of_mom} shows the result. The biased region and
+the sampling heterogeneity are both clearly recovered, producing a map that is
+qualitatively very close to the reference Wasserstein map computed from raw
+samples in Figure~\ref{fig:wasserstein_raw}.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.5\textwidth]{figures/wasserstein_mom_of_mom.png}
+    \caption{Pixelwise map produced by the Wasserstein distance computed from the
+    moments of the moment vector. The biased region and the sampling heterogeneity
+    are clearly identified, in close agreement with the reference map.}
+    \label{fig:wasserstein_mom_of_mom}
+\end{figure}
+
+Why does this work when the first-level moment approach fails? The key difference
+lies in the nature of the input to the Wasserstein computation. The first-level
+moment vector $(m_1, \ldots, m_{100})$ is a heterogeneous sequence of values with
+very different magnitudes: $m_1 \approx 0.5$ while $m_{100} \approx 10^{-30}$.
+Sorting this vector and computing its quantile function, as the Wasserstein formula
+requires, destroys the ordering structure that makes the moments meaningful and
+produces a comparison that is numerically dominated by the first few values.
+
+By contrast, the second-level moments are computed from the vector
+$(m_1, \ldots, m_{100})$ treated as a dataset. The first few second-level moments
+capture summary statistics of this vector: its mean (the average value of all raw
+moments), its variance (how spread out the raw moments are), and higher-order
+statistics that describe the shape of the decay profile. These second-level moments
+are quantities of the same nature and comparable magnitude, so sorting and computing
+the Wasserstein distance between them is numerically well-behaved. Moreover, the
+decay profile of the raw moment sequence is itself a rich signature of the
+underlying distribution, and comparing these profiles via second-level moments
+appears to capture differences in distributional shape that the first-level approach
+misses.
+
+It is important to emphasise that this is an empirical observation. No theoretical
+framework currently explains why the moment-of-moments approach recovers the
+distributional signal so effectively, and no existing study in the optimal transport
+or dosimetry literature appears to have investigated this construction. The result
+is reproducible across different random seeds and bias levels in our experiments,
+which suggests that it is not a numerical artefact, but a formal justification
+remains an open question. Exploring this connection more rigorously would be a
+natural direction for future work, possibly in relation to the functional data
+analysis literature where moments of moment sequences have been studied in other
+contexts.
+
+% ----------------------------------------------------------------
+\subsection{Summary of Results}
+% ----------------------------------------------------------------
+
+Table~\ref{tab:summary} summarises the ability of each method to detect the two
+types of discrepancy considered in the experiments: the additive bias (columns 30
+to 35) and the sampling heterogeneity (border region with low sample counts).
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Method} & \textbf{Bias detection} & \textbf{Sampling heterogeneity} \\
+        \hline
+        MAE / MSE & No & No \\
+        SSIM & Partial & No \\
+        Gamma index & No & No \\
+        T-test & No & No \\
+        Wasserstein (raw samples) & Yes & Yes \\
+        Wasserstein (raw moments) & No & No \\
+        MAE of moment subsets & Partial & Partial \\
+        Wasserstein (moment-of-moments) & Yes & Yes \\
+        \hline
+    \end{tabular}
+    \caption{Summary of the ability of each method to detect the additive bias
+    and the sampling heterogeneity in the simulated dose maps. The Wasserstein
+    distance computed from raw samples serves as the reference target.}
+    \label{tab:summary}
+\end{table}
+
+The main finding is that the Wasserstein distance computed from raw samples
+outperforms all classical metrics and detects both types of discrepancy. Among the
+approximation strategies based on compressed representations, the moment-of-moments
+approach is the only one that consistently reproduces the behaviour of the reference
+Wasserstein map. This result is promising for practical dosimetric applications,
+where raw samples are not available and a compact representation of the distribution
+is required.
+
+
+
+\section{Conclusion}
+\newpage
+
+\section{Bibliography}
+\newpage
+
+\section{Annexe}
+\newpage
+
+\end{document}
+
+

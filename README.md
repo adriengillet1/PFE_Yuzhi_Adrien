@@ -5,3 +5,11 @@ Ce dépôt git regroupe le code du Projet de Fin d'Étude (PFE) de Yuzhi Wang et
 L'objectif est de simuler de cartes de dose à l'aide de matrices numpy puis d'évaluer les différentes métriques connues de cartes de dose.
 
 Actuellement, le code propre est regroupé dans le fichier code_PFE.ipynb.
+
+
+### LaTeX
+
+Pour que le code LaTeX soit interprété et puisse être compilé en un fichier pdf, il faut installer l'extension LaTeX Workshop sur VSCode.
+
+Ensuite, dans un terminal, il faut installer ce package : `sudo apt install texlive-latex-recommended texlive-latex-extra latexmk`.
+
